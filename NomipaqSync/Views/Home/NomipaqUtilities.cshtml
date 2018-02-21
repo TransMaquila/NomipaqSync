@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Nomipaq Utilerias";
+}
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+
+
+
+<div class="divTable">
+    <div class="divTableBody">
+        <div class="divTableRow">
+            <div class="divTableCell"><h3>Sincronizar tablas de Empreados, vacaciones, incapacidades, tipos de incidencias e incidencias</h3></div>
+            <div class="divTableCell">@Html.ActionLink("Ejecutar", "syncronize", "nomipaq", null, new { @class = "btn btn-primary btn-large center-block" })</div>
+        </div>
+        <div class="divTableRow">
+            <div class="divTableCell"><h3>Transferir Netos de la Nomina Fiscal a la Nomina de Maniobras.</h3></div>
+            <div class="divTableCell"> @Html.ActionLink("Ejecutar", "transfer", "nomipaq", null, new { @class = "btn btn-primary btn-large center-block" })</div>
+        </div>
+    </div>
+</div>
+<!-- DivTable.com -->
+

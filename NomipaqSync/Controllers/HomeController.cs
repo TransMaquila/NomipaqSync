@@ -17,14 +17,21 @@ namespace NomipaqSync.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Message"] = "Nomipaq Utilies.";
+
+            return View();
+        }
+
+        public IActionResult NomipaqUtilities()
+        {
+            ViewData["Message"] = "Utilerias para Nomipaq (Nomina Maniobras)";
 
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewData["Message"] = "Transmaquila.com";
 
             return View();
         }

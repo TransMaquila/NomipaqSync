@@ -9,33 +9,33 @@ using NomipaqSync.Models;
 namespace NomipaqSync.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Syncronize")]
+    [Route("nomipaq/syncronize")]
     public class SyncronizeController : Controller
     {
 
 
         // GET: api/Nomipaq
         [HttpGet]
-        public int Get()
+        public async Task<string> Get()
         {
             // return new string[] { "value1", "value2" };
-            return Nomipaq.Syncronize();
+            return await Nomipaq.Syncronize();
         }
 
     }
 
     [Produces("application/json")]
-    [Route("api/transfer")]
+    [Route("nomipaq/transfer")]
     public class TransferController : Controller
     {
 
 
         // GET: api/Nomipaq
         [HttpGet]
-        public int Get()
+        public async Task<string> Get()
         {
             // return new string[] { "value1", "value2" };
-            return Nomipaq.Transfer(7, 2018);
+            return await Nomipaq.Transfer();
         }
 
     }

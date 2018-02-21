@@ -9,7 +9,7 @@ namespace NomipaqSync.Models
 {
     static class Nomipaq
     {
-        public static int Syncronize(string sourceDB = "NOM_TRANSMAQUILA_SA", string targetDB = "NOM_TRANSMAQUILA_MAN")
+        public async static Task<string> Syncronize(string sourceDB = "NOM_TRANSMAQUILA_SA", string targetDB = "NOM_TRANSMAQUILA_MAN")
         {
 
             string queryString = $@"
@@ -17,7 +17,12 @@ namespace NomipaqSync.Models
                 -- Copia la tabla de Empleados [nom10001]
                 -- --------------------------------------------------------------------------------
 
-                DROP TABLE [{targetDB}].[dbo].[nom10001]
+
+                IF (OBJECT_ID('[{targetDB}].[dbo].[nom10001]') IS NOT NULL)
+                BEGIN
+                    DROP TABLE [{targetDB}].[dbo].[nom10001]
+                END
+          
                 SELECT * INTO [{targetDB}].[dbo].[nom10001]
                 FROM  [{sourceDB}].[dbo].[nom10001] 
 
@@ -47,27 +52,40 @@ namespace NomipaqSync.Models
                 ALTER TABLE [{targetDB}].[dbo].[nom10001] ADD  DEFAULT ('') FOR [EntidadFederativa]
                 ALTER TABLE [{targetDB}].[dbo].[nom10001] ADD  DEFAULT ('0') FOR [Subcontratacion]
             -- GO
-
+  
                 -- --------------------------------------------------------------------------------
-                -- Copia la tabla de Vacaciones [[nom10014]]
+                -- Copia la tabla de Vacaciones [nom10014]
                 -- --------------------------------------------------------------------------------
 
-                DROP TABLE [{targetDB}].[dbo].[nom10014]
+
+                IF (OBJECT_ID('[{targetDB}].[dbo].[nom10014]') IS NOT NULL)
+                BEGIN
+                    DROP TABLE [{targetDB}].[dbo].[nom10014]
+                END
                 SELECT * INTO [{targetDB}].[dbo].[nom10014]
                 FROM  [{sourceDB}].[dbo].[nom10014]
+
 
                 ALTER TABLE [{targetDB}].[dbo].[nom10014] ADD CONSTRAINT [PK_nom10014] PRIMARY KEY CLUSTERED  ([idtcontrolvacaciones] ASC)
                 CREATE NONCLUSTERED INDEX [IDXEJERCICIOEMPLEADO] ON [{targetDB}].[dbo].[nom10014] ([ejercicio] ASC,[idempleado] ASC)
                 CREATE NONCLUSTERED INDEX [IDXEMPLEADO] ON [{targetDB}].[dbo].[nom10014] ([idempleado] ASC)
                 CREATE NONCLUSTERED INDEX [IDXEMPLEADOFECHAINICIO] ON [{targetDB}].[dbo].[nom10014] ([idempleado] ASC,[fechainicio] ASC)
                 CREATE NONCLUSTERED INDEX [IDXFECHAINICIO] ON [{targetDB}].[dbo].[nom10014] ([fechainicio] ASC)
+
+               
+
             -- GO
 
                 -- --------------------------------------------------------------------------------
                 -- Copia la tabla de Control de Incapacidades [nom10018]
                 -- --------------------------------------------------------------------------------
 
-                DROP TABLE [{targetDB}].[dbo].[nom10018]
+
+                IF (OBJECT_ID('[{targetDB}].[dbo].[nom10018]') IS NOT NULL)
+                BEGIN
+                    DROP TABLE [{targetDB}].[dbo].[nom10018]
+             
+                END
                 SELECT * INTO [{targetDB}].[dbo].[nom10018]
                 FROM  [{sourceDB}].[dbo].[nom10018]
 
@@ -78,13 +96,17 @@ namespace NomipaqSync.Models
 
                 ALTER TABLE [{targetDB}].[dbo].[nom10018] ADD  CONSTRAINT [DF_nom10018_fincaso]  DEFAULT ((0)) FOR [fincaso]
                 ALTER TABLE [{targetDB}].[dbo].[nom10018] ADD  CONSTRAINT [DF_nom10018_controlmaternidad]  DEFAULT ((0)) FOR [controlmaternidad]
+          
             -- GO
 
                 -- --------------------------------------------------------------------------------
                 -- Copia la tabla de Tipos de Incidencias [nom10001]
                 -- --------------------------------------------------------------------------------
 
-                DROP TABLE [{targetDB}].[dbo].[nom10022]
+                IF (OBJECT_ID('[{targetDB}].[dbo].[nom10022]') IS NOT NULL)
+                BEGIN
+                    DROP TABLE [{targetDB}].[dbo].[nom10022]
+                END
                 SELECT * INTO [{targetDB}].[dbo].[nom10022]
                 FROM  [{sourceDB}].[dbo].[nom10022]
 
@@ -94,13 +116,17 @@ namespace NomipaqSync.Models
                 CREATE NONCLUSTERED INDEX [IDXTIPOINCIDENCIA] ON [{targetDB}].[dbo].[nom10022] ([tipoincidencia] ASC)
                 ALTER TABLE [{targetDB}].[dbo].[nom10022] ADD  CONSTRAINT [DF_nom10022_derechosueldo]  DEFAULT ((0)) FOR [derechosueldo]
                 ALTER TABLE [{targetDB}].[dbo].[nom10022] ADD  CONSTRAINT [DF_nom10022_derechoseptimodia]  DEFAULT ((0)) FOR [derechoseptimodia]
+   
             -- GO
 
                 -- --------------------------------------------------------------------------------
                 -- Copia la tabla de Incidencias [nom10001]
                 -- --------------------------------------------------------------------------------
 
-                DROP TABLE [{targetDB}].[dbo].[nom10010]
+                IF (OBJECT_ID('[{targetDB}].[dbo].[nom10010]') IS NOT NULL)
+                BEGIN
+                    DROP TABLE [{targetDB}].[dbo].[nom10010]
+                END
                 SELECT * INTO [{targetDB}].[dbo].[nom10010]
                 FROM  [{sourceDB}].[dbo].[nom10010]
 
@@ -115,19 +141,20 @@ namespace NomipaqSync.Models
                 CREATE NONCLUSTERED INDEX [IDXIDTCONTROLVACACIONES] ON [{targetDB}].[dbo].[nom10010] ([idtcontrolvacaciones] ASC)
                 CREATE NONCLUSTERED INDEX [IDXPEREMPINC] ON [{targetDB}].[dbo].[nom10010] ([idperiodo] ASC,[idempleado] ASC,[idtipoincidencia] ASC)
                 CREATE NONCLUSTERED INDEX [IDXPEREMPINCFEC] ON [{targetDB}].[dbo].[nom10010] ([idperiodo] ASC,[idempleado] ASC,[idtipoincidencia] ASC,[fecha] ASC)
-            -- GO
-            ";
 
-            int totalRecords = DAL.Execute(queryString);
+            -- GO";
+
+            string totalRecords =  await DAL.Execute(queryString);
+
             return totalRecords;
         }
 
-        public static int Transfer(int numberoPeriodo, int ejercicio, string sourceDB = "NOM_TRANSMAQUILA_SA", string targetDB = "NOM_TRANSMAQUILA_MAN")
+        public async static Task<string> Transfer(string sourceDB = "NOM_TRANSMAQUILA_SA", string targetDB = "NOM_TRANSMAQUILA_MAN")
         {
 
             string queryString = $@"
-                DECLARE @numeroperiodoTmp   INT = {numberoPeriodo}
-                DECLARE @Ejercicio          INT = {ejercicio}
+                DECLARE @numeroperiodoTmp   INT = ( SELECT posicionpagonomina FROM [{targetDB}].[dbo].[nom10023] where nombretipoperiodo='Semanal' )
+                DECLARE @Ejercicio          INT = ( SELECT ejercicio FROM [{targetDB}].[dbo].[nom10023] where nombretipoperiodo='Semanal' )
                 DECLARE @IdPeriodo          INT = ( SELECT TOP 1 [idperiodo] FROM [{sourceDB}].[dbo].[nom10002] WHERE numeroperiodo=@numeroperiodoTmp and ejercicio=@Ejercicio ORDER BY timestamp desc )
                 DECLARE @DebitChargeAccount INT = ( SELECT TOP 1 [idconcepto] FROM [{targetDB}].[dbo].[nom10004] WHERE descripcion='Neto Nomina Fiscal' )
                 DECLARE @NetPayIdAccount    INT = ( SELECT TOP 1 [idconcepto] FROM [{sourceDB}].[dbo].[nom10004] WHERE descripcion='Neto' )
@@ -146,8 +173,8 @@ namespace NomipaqSync.Models
                 WHERE a.idperiodo =@IdPeriodo AND a.idconcepto = @NetPayIdAccount AND b.estadoempleado <> 'B'
                 ";
 
-            int totalRecords = DAL.Execute(queryString);
-            return totalRecords;
+            string totalRecords = await DAL.Execute(queryString);
+            return totalRecords.ToString();
         }
 
     }
